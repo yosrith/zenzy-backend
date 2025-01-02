@@ -12,10 +12,14 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
-        userService.registerUser(user);
-        return ResponseEntity.ok("User registered successfully!");
+    @PostMapping("/signup") // Updated the endpoint from /register to /signup
+    public ResponseEntity<String> signupUser(@RequestBody User user) {
+        try {
+            userService.registerUser(user);
+            return ResponseEntity.ok("User signed up successfully!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
@@ -25,5 +29,4 @@ public class UserController {
                 .map(u -> ResponseEntity.ok("Login successful!"))
                 .orElse(ResponseEntity.status(401).body("Invalid username or password"));
     }
-
 }
