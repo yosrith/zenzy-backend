@@ -13,11 +13,23 @@ public class UserService {
     private UserRepository userRepository;
 
     public User registerUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            throw new IllegalArgumentException("Username is already taken!");
+        }
+
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            throw new IllegalArgumentException("Email is already registered!");
+        }
+
         return userRepository.save(user);
     }
 
     public Optional<User> findUserByUsername(String username) {
         return Optional.ofNullable(userRepository.findByUsername(username));
+    }
+
+    public Optional<User> findUserByEmail(String email) {
+        return Optional.ofNullable(userRepository.findByEmail(email));
     }
 
     public Optional<User> login(String username, String password) {
