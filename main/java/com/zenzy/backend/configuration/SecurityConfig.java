@@ -14,8 +14,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for development
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/h2-console/**").permitAll() // Allow access to H2 console
-                                .anyRequest().permitAll() // Allow all other requests
+                                .requestMatchers("/h2-console/**", "/api/users/**").permitAll() // Allow access to API and H2 console
+                                .anyRequest().permitAll() // Allow all requests
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin())); // Allow H2 console in frames
         return http.build();

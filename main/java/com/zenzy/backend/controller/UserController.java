@@ -6,27 +6,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/signup") // Updated the endpoint from /register to /signup
-    public ResponseEntity<String> signupUser(@RequestBody User user) {
-        try {
-            userService.registerUser(user);
-            return ResponseEntity.ok("User signed up successfully!");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    /**
+     * Login API (Auto-registers new users if they don’t exist)
+     */
+    @PostMapping("/login")
+    public ResponseEntity<User> loginUser(@RequestBody User user) {
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
         }
+
+        User loggedInUser = userService.login(user.getUsername(), user.getPhone());
+        return ResponseEntity.ok(loggedInUser);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody User user) {
-        System.out.println("Login request received for username: " + user.getUsername() + " and password: " + user.getPassword());
-        return userService.login(user.getUsername(), user.getPassword())
-                .map(u -> ResponseEntity.ok("Login successful!"))
-                .orElse(ResponseEntity.status(401).body("Invalid username or password"));
+    /**
+     * Fetch User Details (if needed)
+     */
+    @GetMapping("/user-details")
+    public ResponseEntity<User> getUserDetails(@RequestParam String phone) {
+        Optional<User> user = userService.getUserDetails(phone);
+        return user.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(404).body(null));
     }
 }

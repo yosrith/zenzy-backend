@@ -4,7 +4,6 @@ import com.zenzy.backend.model.User;
 import com.zenzy.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
 @Service
@@ -12,28 +11,32 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User registerUser(User user) {
-        if (userRepository.findByUsername(user.getUsername()) != null) {
-            throw new IllegalArgumentException("Username is already taken!");
+    /**
+     * Logs in a user based on username and phone number.
+     * If the user does not exist, they will be automatically created.
+     */
+    public User login(String username, String phone) {
+        Optional<User> existingUser = userRepository.findByPhone(phone);
+
+        if (existingUser.isPresent()) {
+            return existingUser.get();
+        } else {
+            if (username == null || username.trim().isEmpty()) {
+                username = "Guest"; // Assign default username if empty
+            }
+
+            User newUser = new User();
+            newUser.setUsername(username);
+            newUser.setPhone(phone);
+            return userRepository.save(newUser);
         }
-
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-            throw new IllegalArgumentException("Email is already registered!");
-        }
-
-        return userRepository.save(user);
     }
 
-    public Optional<User> findUserByUsername(String username) {
-        return Optional.ofNullable(userRepository.findByUsername(username));
-    }
 
-    public Optional<User> findUserByEmail(String email) {
-        return Optional.ofNullable(userRepository.findByEmail(email));
-    }
-
-    public Optional<User> login(String username, String password) {
-        Optional<User> user = findUserByUsername(username);
-        return user.filter(u -> u.getPassword().equals(password));
+    /**
+     * Fetch user details by phone number.
+     */
+    public Optional<User> getUserDetails(String phone) {
+        return userRepository.findByPhone(phone);
     }
 }

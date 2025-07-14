@@ -1,9 +1,9 @@
 package com.zenzy.backend.service;
+
 import org.springframework.stereotype.Component;
 import org.springframework.boot.CommandLineRunner;
 import com.zenzy.backend.repository.UserRepository;
 import com.zenzy.backend.model.User;
-
 
 @Component
 public class DatabaseInitializer implements CommandLineRunner {
@@ -20,11 +20,10 @@ public class DatabaseInitializer implements CommandLineRunner {
         if (userRepository.count() == 0) {
             // Insert sample data
             User user = new User();
-            user.setUsername("testuser");
-            user.setPassword("password123");
-            user.setEmail("testuser@example.com");
+            user.setUsername("Test User");
+            user.setPhone("9999999999"); // Default phone number
             userRepository.save(user);
-            System.out.println("Sample user added to the database.");
+            System.out.println("✅ Sample user added to the database.");
         }
     }
 }
